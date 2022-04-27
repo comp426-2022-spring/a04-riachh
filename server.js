@@ -14,11 +14,8 @@ const fs = require('fs')
 app.use(express.urlencoded({ extended: true}));
 app.use(express.json());
 
-//Start listening 
+//Initialize  
 const HTTP_PORT = args.port || process.env.PORT || 5000
-const server = app.listen(HTTP_PORT, () => {
-    console.log('App listening on port %PORT%'.replace('%PORT%',HTTP_PORT))
-});
 
 //Store help text 
 const help = (`
@@ -44,8 +41,13 @@ if (args.help || args.h) {
     process.exit(0)
 }
 
+//Start Listening 
+const server = app.listen(HTTP_PORT, () => {
+    console.log('App listening on port %PORT%'.replace('%PORT%',HTTP_PORT))
+});
+
 //Check w morgan
-if (args.log != 'false') {
+if (args.log) {
     
 //Middleware 
 app.use( (req, res, next) => {
@@ -68,10 +70,10 @@ app.use( (req, res, next) => {
     const info = stmt.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent)
 
     next()
-})
+}); 
 
 //Create a write stream to append (flags: 'a') to a file
-const logFr = fs.createWriteStream('access.log', { flags: 'a' })
+const logFr = fs.createWriteStream('./access.log', { flags: 'a' })
 //Set up the access logging middleware
 app.use(morgan('combined', { stream: logFr }))
 
@@ -79,11 +81,12 @@ app.use(morgan('combined', { stream: logFr }))
 
 //Removing if statement 
 //Endpoints
-if(args.debug){
-    app.get('/app/log/access', (req,res) => {
+if(!args.debug){
+    app.get('/app/log/access', (req, res, next) => {
         //res.statusCode = 200
         const fr = db.prepare('SELECT * FROM accesslog').all()
         res.status(200).json(fr)
+        next()
     })
     
     app.get('/app/error', (req,res) => {
