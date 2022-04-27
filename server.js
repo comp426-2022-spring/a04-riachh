@@ -18,7 +18,7 @@ const {exit} = ('process')
 var args = mini(process.argv.slice(2), {
   integer: [ 'port' ],
   boolean: [ 'debug', 'log', 'help' ],
-  default: { help: false, port: 5555, debug: false, log: true },
+  default: { help: false, port: 5000, debug: false, log: true },
   '--': true,
 })
 
@@ -52,7 +52,7 @@ if (args.help || args.h) {
 }
 
 //Initialize  
-const HTTP_PORT = args.port || 5555
+const HTTP_PORT = args.port || 5000
 //Start Listening 
 const server = app.listen(HTTP_PORT, () => {
     console.log('App listening on port %PORT%'.replace('%PORT%',HTTP_PORT))
