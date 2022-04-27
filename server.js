@@ -5,7 +5,7 @@ const app = express()
 const args = require('minimist')(process.argv.slice(2))
 args["port"]
 
-// Store help text 
+//Store help text 
 const help = (`
 server.js [options]
 
@@ -22,7 +22,8 @@ server.js [options]
 
 --help	Return this message and exit.
 `)
-// If --help or -h, echo help text to STDOUT and exit
+
+//If --help or -h, echo help text to STDOUT and exit
 if (args.help || args.h) {
     console.log(help)
     process.exit(0)
@@ -40,6 +41,18 @@ app.get('/app/', (req, res) => {
     res.statusMessage = 'OK';
     res.writeHead( res.statusCode, { 'Content-Type' : 'text/plain' });
     res.end(res.statusCode + ' ' + res.statusMessage)
+})
+
+//Add if statement after commit 
+
+app.get('/app/log/access', (req,res) => {
+    res.statusCode = 200
+    const fr = db.prepare('SELECT * FROM accesslog').all()
+    res.json(fr)
+})
+
+app.get('/app/error', (req,res) => {
+    throw new error ("Error test successful.")
 })
 
 
