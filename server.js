@@ -45,7 +45,25 @@ app.get('/app/', (req, res) => {
     res.end(res.statusCode + ' ' + res.statusMessage)
 })
 
+//Middleware 
+app.use( (req, res, next) => {
+    //Your middleware goes here:
+    let logdata = {
+        remoteaddr: req.ip,
+        remoteuser: req.user,
+        time: Date.now(),
+        method: req.method,
+        url: req.url,
+        protocol: req.protocol,
+        httpversion: req.httpVersion,
+        status: res.statusCode,
+        referer: req.headers['referer'],
+        useragent: req.headers['user-agent']
+    }
+})
+
 //Add if statement after commit 
+//Endpoints
 if(args.debug){
     app.get('/app/log/access', (req,res) => {
         res.statusCode = 200
@@ -57,6 +75,12 @@ if(args.debug){
         throw new error ("Error test successful.")
     })
 }
+
+//Error for any other endpoint
+app.use(function(req, res){
+	res.json({"message":"Endpoint not found. (404)"});
+    res.status(404);
+});
 
 //Use morgan here after commit 
 
