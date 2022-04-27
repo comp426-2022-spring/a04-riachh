@@ -4,6 +4,8 @@ const app = express()
 //Require Mninmist 
 const args = require('minimist')(process.argv.slice(2))
 args["port"]
+//Require database
+const db = require('./database.js')
 
 //Store help text 
 const help = (`
@@ -44,16 +46,19 @@ app.get('/app/', (req, res) => {
 })
 
 //Add if statement after commit 
+if(args.debug){
+    app.get('/app/log/access', (req,res) => {
+        res.statusCode = 200
+        const fr = db.prepare('SELECT * FROM accesslog').all()
+        res.json(fr)
+    })
+    
+    app.get('/app/error', (req,res) => {
+        throw new error ("Error test successful.")
+    })
+}
 
-app.get('/app/log/access', (req,res) => {
-    res.statusCode = 200
-    const fr = db.prepare('SELECT * FROM accesslog').all()
-    res.json(fr)
-})
-
-app.get('/app/error', (req,res) => {
-    throw new error ("Error test successful.")
-})
+//Use morgan here after commit 
 
 
 //Functions from a02
