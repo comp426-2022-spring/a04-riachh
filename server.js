@@ -3,29 +3,15 @@ const express = require('express')
 const app = express()
 //Require Mninmist 
 const mini = require('minimist')
-
 //Require database
 const db = require('./database.js')
 //Require morgan
 const morgan = require('morgan')
 //Require fs 
 const fs = require('fs')
-//Require process
-const {exit} = ('process')
 
-
-
-var args = mini(process.argv.slice(2), {
-  integer: [ 'port' ],
-  boolean: [ 'debug', 'log', 'help' ],
-  default: { help: false, port: 5000, debug: false, log: true },
-  '--': true,
-})
-
-args['port', 'debug', 'log', 'help']
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true}));
+app.use(express.json())
+app.use(express.urlencoded({ extended: true}))
 
 //Store help text 
 const help = (`
@@ -51,8 +37,10 @@ if (args.help || args.h) {
     process.exit(0)
 }
 
-//Initialize  
-const HTTP_PORT = args.port || 5000
+//Initialize 
+const args = require('minimist')(process.argv.slice(2))
+console.log(args)
+const HTTP_PORT = args.port || 5555
 //Start Listening 
 const server = app.listen(HTTP_PORT, () => {
     console.log('App listening on port %PORT%'.replace('%PORT%',HTTP_PORT))
