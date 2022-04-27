@@ -2,7 +2,8 @@
 const express = require('express')
 const app = express()
 //Require Mninmist 
-const mini = require('minimist')
+const args = require('minimist')(process.argv.slice(2))
+//args["port", "debug", "log", "help"]
 //Require database
 const db = require('./database.js')
 //Require morgan
@@ -10,8 +11,8 @@ const morgan = require('morgan')
 //Require fs 
 const fs = require('fs')
 
-app.use(express.json())
-app.use(express.urlencoded({ extended: true}))
+app.use(express.json());
+app.use(express.urlencoded({ extended: true}));
 
 //Store help text 
 const help = (`
@@ -37,16 +38,14 @@ if (args.help || args.h) {
     process.exit(0)
 }
 
-//Initialize 
-const args = require('minimist')(process.argv.slice(2))
-console.log(args)
-const HTTP_PORT = args.port || 5555
+//Initialize  
+const HTTP_PORT = args.port || process.env.PORT || 5555
 //Start Listening 
 const server = app.listen(HTTP_PORT, () => {
     console.log('App listening on port %PORT%'.replace('%PORT%',HTTP_PORT))
 });
 
-//Check w morgan...DONT CHANGE THIS
+//Check w morgan...DONT CHANGE
 if (args.log) { 
     //Create a write stream to append (flags: 'a') to a file
     const access = fs.createWriteStream('access.log', { flags: 'a' })
@@ -86,7 +85,7 @@ app.get('/app/', (req, res) => {
 //Endpoints
 if (args.debug) {
     app.get('/app/log/access', (req, res) => {
-      try {
+      try{
         const fr = db.prepare('SELECT * FROM accesslog').all()
         res.status(200).json(fr)
       } catch(e) {
