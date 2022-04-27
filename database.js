@@ -19,13 +19,13 @@ if (row === undefined) {
 
     //Set a const that will contain your SQL commands to initialize the database
     const sqlInit = `
-        CREATE TABLE accesslog (id INTEGER NOT NULL PRIMARY KEY, remoteaddr TEXT, remoteuser TEXT, time INTEGER, method TEXT, url TEXT, protocol TEXT, httpversion TEXT, status INTEGER, referer TEXT, useragent TEXT);
+        CREATE TABLE accesslog (id INTEGER PRIMARY KEY, remoteaddr VARCHAR, remoteuser VARCHAR, time VARCHAR, method VARCHAR, url VARCHAR, protocol VARCHAR, httpversion NUMERIC, status INTEGER, referer VARCHAR, useragent VARCHAR);
         `;
     
     //Execute SQL commands that we just wrote above
     db.exec(sqlInit);
     
-    console.log('Your database has been initialized with a new table and two entries containing a username and password.');
+    console.log('Your database has been initialized with a new table.');
 
 } else {
     //Else, database exists 

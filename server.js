@@ -45,8 +45,10 @@ const server = app.listen(HTTP_PORT, () => {
     console.log('App listening on port %PORT%'.replace('%PORT%',HTTP_PORT))
 });
 
+const log = args.log || true
+
 //Check w morgan
-if (args.log) { 
+if (log) { 
     //Middleware 
     app.use( (req, res, next) => {
         //Your middleware goes here:
@@ -63,15 +65,15 @@ if (args.log) {
             useragent: req.headers['user-agent']
         }
 
-        const stmt = db.prepare(`
+        const one = db.prepare(`
             INSERT INTO access (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         `)
-        const info = stmt.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent)
+        const two = one.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent)
         next()
     }); 
 
     //Create a write stream to append (flags: 'a') to a file
-    const access = fs.createWriteStream('access.log', { flags: 'a' })
+    const access = fs.createWriteStream('./access.log', { flags: 'a' })
     //Set up the access logging middleware
     app.use(morgan('combined', { stream: access }))
 
