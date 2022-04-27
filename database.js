@@ -30,7 +30,7 @@ if (row === undefined) {
             httpversion NUMERIC, 
             status INTEGER, 
             content_length NUMERIC,
-            referrer_url TEXT,
+            referer TEXT,
             user_agent TEXT
             );
         `
