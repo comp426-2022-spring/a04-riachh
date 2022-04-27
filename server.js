@@ -9,6 +9,12 @@ const db = require('./database.js')
 //Require morgan
 const morgan = require('morgan');
 
+//Start listening 
+const HTTP_PORT = args.port || process.env.PORT || 5000
+const server = app.listen(HTTP_PORT, () => {
+    console.log('App listening on port %PORT%'.replace('%PORT%',HTTP_PORT))
+});
+
 //Store help text 
 const help = (`
 server.js [options]
@@ -33,12 +39,8 @@ if (args.help || args.h) {
     process.exit(0)
 }
 
-
-//Don't listen yet, just initialize  
-const HTTP_PORT = args.port || process.env.PORT || 5000
-
 //Check w morgan
-if (args.log == true) {
+if (args.log === 'true') {
     //Create a write stream to append (flags: 'a') to a file
     const logFr = fs.createWriteStream('access.log', { flags: 'a' })
     //Set up the access logging middleware
@@ -60,11 +62,16 @@ app.use( (req, res, next) => {
         referer: req.headers['referer'],
         useragent: req.headers['user-agent']
     }
+
+    const one = db.prepare("INSERT INTO logFr (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+    const two = one.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent)
+
+    next()
 })
 
 //Removing if statement 
 //Endpoints
-//if(args.debug){
+if(args.debug){
     app.get('/app/log/access', (req,res) => {
         res.statusCode = 200
         const fr = db.prepare('SELECT * FROM accesslog').all()
@@ -74,12 +81,7 @@ app.use( (req, res, next) => {
     app.get('/app/error', (req,res) => {
         throw new error ("Error test successful.")
     })
-//}
-
-//Start listening AFTER
-const server = app.listen(HTTP_PORT, () => {
-    console.log('App listening on port %PORT%'.replace('%PORT%',HTTP_PORT))
-});
+}
 
 //Error for any other endpoint
 app.use(function(req, res){
