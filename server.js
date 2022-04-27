@@ -3,6 +3,7 @@ const express = require('express')
 const app = express()
 //Require Mninmist 
 const args = require('minimist')(process.argv.slice(2))
+args["port", "debug", "log", "help"]
 //Require database
 const db = require('./database.js')
 //Require morgan
@@ -32,11 +33,9 @@ if (args.help || args.h) {
     process.exit(0)
 }
 
-//args after help 
-args["port", "debug", "log", "help"]
+
 //Don't listen yet, just initialize  
 const HTTP_PORT = args.port || process.env.PORT || 5000
-
 
 //Check w morgan
 if (args.log == true) {
@@ -63,9 +62,9 @@ app.use( (req, res, next) => {
     }
 })
 
-//Add if statement after commit 
+//Removing if statement 
 //Endpoints
-if(args.debug){
+//if(args.debug){
     app.get('/app/log/access', (req,res) => {
         res.statusCode = 200
         const fr = db.prepare('SELECT * FROM accesslog').all()
@@ -75,7 +74,7 @@ if(args.debug){
     app.get('/app/error', (req,res) => {
         throw new error ("Error test successful.")
     })
-}
+//}
 
 //Start listening AFTER
 const server = app.listen(HTTP_PORT, () => {
