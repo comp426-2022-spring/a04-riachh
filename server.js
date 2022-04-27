@@ -7,7 +7,12 @@ args["port", "debug", "log", "help"]
 //Require database
 const db = require('./database.js')
 //Require morgan
-const morgan = require('morgan');
+const morgan = require('morgan')
+//Require fs 
+const fs = require('fs')
+
+app.use(express.urlencoded({ extended: true}));
+app.use(express.json());
 
 //Start listening 
 const HTTP_PORT = args.port || process.env.PORT || 5000
@@ -63,8 +68,8 @@ app.use( (req, res, next) => {
         useragent: req.headers['user-agent']
     }
 
-    const one = db.prepare("INSERT INTO logFr (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-    const two = one.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent)
+    const frone = db.prepare("INSERT INTO logFr (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+    const frtwo = frone.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent)
 
     next()
 })
