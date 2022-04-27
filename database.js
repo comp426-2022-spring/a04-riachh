@@ -29,7 +29,6 @@ if (row === undefined) {
             protocol TEXT,
             httpversion NUMERIC, 
             status INTEGER, 
-            content_length NUMERIC,
             referer TEXT,
             useragent TEXT
             );
