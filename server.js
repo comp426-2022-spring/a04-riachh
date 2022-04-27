@@ -2,24 +2,30 @@
 const express = require('express')
 const app = express()
 //Require Mninmist 
-const args = require('minimist')(process.argv.slice(2))
-args["port", "debug", "log", "help"]
+const mini = require('minimist')
+
 //Require database
 const db = require('./database.js')
 //Require morgan
 const morgan = require('morgan')
 //Require fs 
 const fs = require('fs')
+//Require process
+const {exit} = ('process')
+
+
+
+var args = mini(process.argv.slice(2), {
+  integer: [ 'port' ],
+  boolean: [ 'debug', 'log', 'help' ],
+  default: { help: false, port: 5555, debug: false, log: true },
+  '--': true,
+})
+
+args['port', 'debug', 'log', 'help']
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true}));
-
-//Initialize  
-const HTTP_PORT = args.port || process.env.PORT || 5555
-//Start Listening 
-const server = app.listen(HTTP_PORT, () => {
-    console.log('App listening on port %PORT%'.replace('%PORT%',HTTP_PORT))
-});
 
 //Store help text 
 const help = (`
@@ -45,7 +51,14 @@ if (args.help || args.h) {
     process.exit(0)
 }
 
-//Check w morgan
+//Initialize  
+const HTTP_PORT = args.port || 5555
+//Start Listening 
+const server = app.listen(HTTP_PORT, () => {
+    console.log('App listening on port %PORT%'.replace('%PORT%',HTTP_PORT))
+});
+
+//Check w morgan...DONT CHANGE THIS
 if (args.log) { 
     //Create a write stream to append (flags: 'a') to a file
     const access = fs.createWriteStream('access.log', { flags: 'a' })
@@ -85,10 +98,10 @@ app.get('/app/', (req, res) => {
 //Endpoints
 if (args.debug) {
     app.get('/app/log/access', (req, res) => {
-      try{
+      try {
         const fr = db.prepare('SELECT * FROM accesslog').all()
         res.status(200).json(fr)
-      } catch (e){
+      } catch(e) {
         console.error(e);
       }
     });
