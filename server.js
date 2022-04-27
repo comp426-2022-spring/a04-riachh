@@ -11,8 +11,16 @@ const morgan = require('morgan')
 //Require fs 
 const fs = require('fs')
 
-//app.use(express.urlencoded({ extended: true}));
-//app.use(express.json());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true}));
+
+
+//Initialize  
+const HTTP_PORT = args.port || process.env.PORT || 5555
+//Start Listening 
+const server = app.listen(HTTP_PORT, () => {
+    console.log('App listening on port %PORT%'.replace('%PORT%',HTTP_PORT))
+});
 
 //Store help text 
 const help = (`
@@ -37,13 +45,6 @@ if (args.help || args.h) {
     console.log(help)
     process.exit(0)
 }
-
-//Initialize  
-const HTTP_PORT = args.port || process.env.PORT || 5000
-//Start Listening 
-const server = app.listen(HTTP_PORT, () => {
-    console.log('App listening on port %PORT%'.replace('%PORT%',HTTP_PORT))
-});
 
 const log = args.log || true
 
