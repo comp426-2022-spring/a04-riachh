@@ -42,7 +42,7 @@ const server = app.listen(HTTP_PORT, () => {
 });
 
 //Check w morgan
-if (args.log) { 
+if (!args.log) { 
     //Create a write stream to append (flags: 'a') to a file
     const access = fs.createWriteStream('access.log', { flags: 'a' })
     //Set up the access logging middleware
