@@ -62,7 +62,7 @@ app.use( (req, res, next) => {
       httpversion: req.httpVersion,
       status: res.statusCode,
       referer: req.headers['referer'],
-      useragent: req.headers['user-agent']
+      useragent: req.headers['useragent']
   }
 
   const stmt = db.prepare('INSERT INTO accesslog (remoteaddr, remoteuser, date, method, url, protocol, httpversion, status, referer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');

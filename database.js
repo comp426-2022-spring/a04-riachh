@@ -31,7 +31,7 @@ if (row === undefined) {
             status INTEGER, 
             content_length NUMERIC,
             referer TEXT,
-            user_agent TEXT
+            useragent TEXT
             );
         `
     
