@@ -7,7 +7,7 @@ const db = new Database('log.db');  //Connect to log.db file
 
 //Is the database initialized or do we need to initialize it?
 const stmt = db.prepare(`
-    SELECT name FROM sqlite_master WHERE type='table' and name='accessLog';`
+    SELECT name FROM sqlite_master WHERE type='table' and name='accesslog';`
 );
 
 //Define row using get() from better-sqlite3
@@ -23,14 +23,15 @@ if (row === undefined) {
             id INTEGER PRIMARY KEY, 
             remoteaddr TEXT, 
             remoteuser TEXT, 
-            time INTEGER, 
+            date TEXT, 
             method TEXT, 
             url TEXT, 
             protocol TEXT,
-            httpversion TEXT, 
+            httpversion NUMERIC, 
             status INTEGER, 
-            referer TEXT,
-            useragent TEXT
+            content_length NUMERIC,
+            referrer_url TEXT,
+            user_agent TEXT
             );
         `
     
