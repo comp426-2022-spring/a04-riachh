@@ -7,7 +7,7 @@ const db = new Database('log.db');  //Connect to log.db file
 
 //Is the database initialized or do we need to initialize it?
 const stmt = db.prepare(`
-    SELECT name FROM sqlite_master WHERE type='table' and name='userinfo';`
+    SELECT name FROM sqlite_master WHERE type='table' and name='access';`
 );
 
 //Define row using get() from better-sqlite3

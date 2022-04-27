@@ -11,8 +11,8 @@ const morgan = require('morgan')
 //Require fs 
 const fs = require('fs')
 
-app.use(express.urlencoded({ extended: true}));
-app.use(express.json());
+//app.use(express.urlencoded({ extended: true}));
+//app.use(express.json());
 
 //Initialize  
 const HTTP_PORT = args.port || process.env.PORT || 5000
@@ -47,41 +47,40 @@ const server = app.listen(HTTP_PORT, () => {
 });
 
 //Check w morgan
-if (args.log) {
-    
-//Middleware 
-app.use( (req, res, next) => {
-    //Your middleware goes here:
-    let logdata = {
-        remoteaddr: req.ip,
-        remoteuser: req.user,
-        time: Date.now(),
-        method: req.method,
-        url: req.url,
-        protocol: req.protocol,
-        httpversion: req.httpVersion,
-        status: res.statusCode,
-        referer: req.headers['referer'],
-        useragent: req.headers['user-agent']
-    }
+if (args.log) { 
+    //Middleware 
+    app.use( (req, res, next) => {
+        //Your middleware goes here:
+        let logdata = {
+            remoteaddr: req.ip,
+            remoteuser: req.user,
+            time: Date.now(),
+            method: req.method,
+            url: req.url,
+            protocol: req.protocol,
+            httpversion: req.httpVersion,
+            status: res.statusCode,
+            referer: req.headers['referer'],
+            useragent: req.headers['user-agent']
+        }
 
-    const stmt = db.prepare(`INSERT INTO logFr (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-    `)
-    const info = stmt.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent)
+        const stmt = db.prepare(`
+            INSERT INTO access (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        `)
+        const info = stmt.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent)
+        next()
+    }); 
 
-    next()
-}); 
-
-//Create a write stream to append (flags: 'a') to a file
-const logFr = fs.createWriteStream('./access.log', { flags: 'a' })
-//Set up the access logging middleware
-app.use(morgan('combined', { stream: logFr }))
+    //Create a write stream to append (flags: 'a') to a file
+    const access = fs.createWriteStream('./access.log', { flags: 'a' })
+    //Set up the access logging middleware
+    app.use(morgan('combined', { stream: access }))
 
 }
 
-//Removing if statement 
+ const debug = args.debug | false
 //Endpoints
-if(!args.debug){
+if (debug) {
     app.get('/app/log/access', (req, res, next) => {
         //res.statusCode = 200
         const fr = db.prepare('SELECT * FROM accesslog').all()
@@ -89,7 +88,7 @@ if(!args.debug){
         next()
     })
     
-    app.get('/app/error', (req,res) => {
+    app.get('/app/error', (req, res, next) => {
         throw new Error ("Error test successful.")
     })
 }
@@ -155,8 +154,9 @@ function countFlips(array) {
   }
   //End Functions...
 
-  //Calls 
-    app.get('/app/flip/', (req, res) => {
+  //a03 Calls 
+
+  app.get('/app/flip/', (req, res) => {
     res.statusCode = 200;
     res.writeHead(res.statusCode, {'Content-Type' : 'text/plain'});
     res.end('{"flip":"' + coinFlip() + '"}')
