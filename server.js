@@ -14,14 +14,6 @@ const fs = require('fs')
 app.use(express.json());
 app.use(express.urlencoded({ extended: true}));
 
-
-//Initialize  
-const HTTP_PORT = args.port || process.env.PORT || 5555
-//Start Listening 
-const server = app.listen(HTTP_PORT, () => {
-    console.log('App listening on port %PORT%'.replace('%PORT%',HTTP_PORT))
-});
-
 //Store help text 
 const help = (`
 server.js [options]
@@ -46,62 +38,65 @@ if (args.help || args.h) {
     process.exit(0)
 }
 
-const log = args.log || true
+//Initialize  
+const HTTP_PORT = args.port || process.env.PORT || 5555
+//Start Listening 
+const server = app.listen(HTTP_PORT, () => {
+    console.log('App listening on port %PORT%'.replace('%PORT%',HTTP_PORT))
+});
 
 //Check w morgan
-if (log) { 
-    //Middleware 
-    app.use( (req, res, next) => {
-        //Your middleware goes here:
-        let logdata = {
-            remoteaddr: req.ip,
-            remoteuser: req.user,
-            time: Date.now(),
-            method: req.method,
-            url: req.url,
-            protocol: req.protocol,
-            httpversion: req.httpVersion,
-            status: res.statusCode,
-            referer: req.headers['referer'],
-            useragent: req.headers['user-agent']
-        }
-
-        const one = db.prepare(`
-            INSERT INTO access (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-        `)
-        const two = one.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent)
-        next()
-    }); 
-
+if (args.log) { 
     //Create a write stream to append (flags: 'a') to a file
-    const access = fs.createWriteStream('./access.log', { flags: 'a' })
+    const access = fs.createWriteStream('access.log', { flags: 'a' })
     //Set up the access logging middleware
     app.use(morgan('combined', { stream: access }))
-
 }
 
- const debug = args.debug | false
+//Middleware 
+app.use( (req, res, next) => {
+  //Your middleware goes here:
+  let logdata = {
+      remoteaddr: req.ip,
+      remoteuser: req.user,
+      time: Date.now(),
+      method: req.method,
+      url: req.url,
+      protocol: req.protocol,
+      httpversion: req.httpVersion,
+      status: res.statusCode,
+      referer: req.headers['referer'],
+      useragent: req.headers['user-agent']
+  }
+
+  const stmt = db.prepare('INSERT INTO accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+  const info = stmt.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent)
+  next()
+});
+
+app.get('/app/', (req, res) => {
+  res.statusCode = 200; 
+  //Respond with status message "OK"
+  res.statusMessage = 'OK';
+  res.writeHead( res.statusCode, { 'Content-Type' : 'text/plain' });
+  res.end(res.statusCode + ' ' + res.statusMessage)
+}); 
+
 //Endpoints
-if (debug) {
-    app.get('/app/log/access', (req, res, next) => {
-        //res.statusCode = 200
+if (args.debug) {
+    app.get('/app/log/access', (req, res) => {
+      try{
         const fr = db.prepare('SELECT * FROM accesslog').all()
         res.status(200).json(fr)
-        next()
-    })
+      } catch (e){
+        console.error(e);
+      }
+    });
     
-    app.get('/app/error', (req, res, next) => {
+    app.get('/app/error', (req, res) => {
         throw new Error ("Error test successful.")
     })
 }
-
-app.get('/app/', (req, res) => {
-    res.statusCode = 200; 
-    //Respond with status message "OK"
-    res.statusMessage = 'OK';
-    res.writeHead( res.statusCode, { 'Content-Type' : 'text/plain' });
-    res.end(res.statusCode + ' ' + res.statusMessage)
-}); 
 
 //Functions from a02
 function coinFlip() {
