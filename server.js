@@ -14,9 +14,6 @@ const fs = require('fs')
 //app.use(express.urlencoded({ extended: true}));
 //app.use(express.json());
 
-//Initialize  
-const HTTP_PORT = args.port || process.env.PORT || 5000
-
 //Store help text 
 const help = (`
 server.js [options]
@@ -41,6 +38,8 @@ if (args.help || args.h) {
     process.exit(0)
 }
 
+//Initialize  
+const HTTP_PORT = args.port || process.env.PORT || 5000
 //Start Listening 
 const server = app.listen(HTTP_PORT, () => {
     console.log('App listening on port %PORT%'.replace('%PORT%',HTTP_PORT))
@@ -72,7 +71,7 @@ if (args.log) {
     }); 
 
     //Create a write stream to append (flags: 'a') to a file
-    const access = fs.createWriteStream('./access.log', { flags: 'a' })
+    const access = fs.createWriteStream('access.log', { flags: 'a' })
     //Set up the access logging middleware
     app.use(morgan('combined', { stream: access }))
 
