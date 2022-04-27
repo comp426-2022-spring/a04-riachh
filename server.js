@@ -3,9 +3,11 @@ const express = require('express')
 const app = express()
 //Require Mninmist 
 const args = require('minimist')(process.argv.slice(2))
-args["port"]
+args["port", "debug", "log", "help"]
 //Require database
 const db = require('./database.js')
+//Require morgan
+const morgan = require('morgan');
 
 //Store help text 
 const help = (`
@@ -37,13 +39,13 @@ const server = app.listen(HTTP_PORT, () => {
     console.log('App listening on port %PORT%'.replace('%PORT%',HTTP_PORT))
 });
 
-app.get('/app/', (req, res) => {
-    res.statusCode = 200; 
-    //Respond with status message "OK"
-    res.statusMessage = 'OK';
-    res.writeHead( res.statusCode, { 'Content-Type' : 'text/plain' });
-    res.end(res.statusCode + ' ' + res.statusMessage)
-})
+//Check w morgan
+if (args.log == true) {
+    //Create a write stream to append (flags: 'a') to a file
+    const logFr = fs.createWriteStream('access.log', { flags: 'a' })
+    //Set up the access logging middleware
+    app.use(morgan('combined', { stream: logFr }))
+}
 
 //Middleware 
 app.use( (req, res, next) => {
@@ -81,8 +83,6 @@ app.use(function(req, res){
 	res.json({"message":"Endpoint not found. (404)"});
     res.status(404);
 });
-
-//Use morgan here after commit 
 
 
 //Functions from a02
@@ -139,6 +139,14 @@ function countFlips(array) {
   //End Functions...
 
   //Calls 
+  app.get('/app/', (req, res) => {
+    res.statusCode = 200; 
+    //Respond with status message "OK"
+    res.statusMessage = 'OK';
+    res.writeHead( res.statusCode, { 'Content-Type' : 'text/plain' });
+    res.end(res.statusCode + ' ' + res.statusMessage)
+}); 
+
   app.get('/app/flip/', (req, res) => {
     res.statusCode = 200;
     res.writeHead(res.statusCode, {'Content-Type' : 'text/plain'});
