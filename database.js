@@ -1,6 +1,8 @@
 //Ensures errors will be thrown 
 "use strict";
 
+//Change for commit 
+
 const Database = require('better-sqlite3'); //Require better-sqlite.
 
 const db = new Database('log.db');  //Connect to log.db file 
